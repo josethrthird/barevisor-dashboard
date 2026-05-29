@@ -1,6 +1,5 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { VmexitCounts } from "@/lib/types";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 
@@ -9,15 +8,15 @@ interface VmexitBreakdownProps {
 }
 
 const COLORS = [
-  "#34d399",
-  "#60a5fa",
+  "#6366f1",
+  "#3b82f6",
   "#818cf8",
+  "#8b5cf6",
   "#a78bfa",
-  "#c084fc",
-  "#f87171",
-  "#fbbf24",
-  "#fb923c",
-  "#94a3b8",
+  "#06b6d4",
+  "#22d3ee",
+  "#71717a",
+  "#52525b",
 ];
 
 export function VmexitBreakdown({ counts }: VmexitBreakdownProps) {
@@ -36,56 +35,67 @@ export function VmexitBreakdown({ counts }: VmexitBreakdownProps) {
   const total = entries.reduce((s, e) => s + e.value, 0);
 
   return (
-    <Card className="border-white/5 bg-zinc-900/50">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-zinc-400">
-          VMEXIT Breakdown
-        </CardTitle>
-        <p className="text-2xl font-bold font-mono text-white">
-          {total.toLocaleString()}
-        </p>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-center gap-4">
-          <div className="h-[140px] w-[140px] shrink-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={entries}
-                  innerRadius={40}
-                  outerRadius={65}
-                  paddingAngle={2}
-                  dataKey="value"
-                  strokeWidth={0}
-                  isAnimationActive={false}
-                >
-                  {entries.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="space-y-1.5 flex-1 min-w-0">
-            {entries.map((entry, i) => (
-              <div key={entry.name} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span
-                    className="h-2 w-2 rounded-full shrink-0"
-                    style={{ backgroundColor: COLORS[i % COLORS.length] }}
-                  />
-                  <span className="text-[11px] font-mono text-zinc-400">
-                    {entry.name}
-                  </span>
-                </div>
-                <span className="text-[11px] font-mono text-zinc-300">
-                  {entry.value.toLocaleString()}
-                </span>
-              </div>
-            ))}
+    <div className="glass-card p-5">
+      <h3 className="text-sm text-zinc-400 font-medium mb-2">
+        Breakdown
+      </h3>
+      <div className="flex items-center gap-5 mt-3">
+        <div className="relative h-[150px] w-[150px] shrink-0">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={entries}
+                innerRadius={44}
+                outerRadius={70}
+                paddingAngle={2}
+                dataKey="value"
+                strokeWidth={0}
+                isAnimationActive={false}
+              >
+                {entries.map((_, i) => (
+                  <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                ))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <span className="text-lg font-bold font-mono text-[#f9fafb] tabular-nums">
+              {total.toLocaleString()}
+            </span>
+            <span className="text-xs text-zinc-500">
+              Total
+            </span>
           </div>
         </div>
-      </CardContent>
-    </Card>
+        <div className="space-y-1.5 flex-1 min-w-0">
+          {entries.map((entry, i) => {
+            const pct =
+              total > 0 ? ((entry.value / total) * 100).toFixed(1) : "0";
+            return (
+              <div
+                key={entry.name}
+                className="flex items-center justify-between"
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className="h-1.5 w-1.5 rounded-full shrink-0"
+                    style={{ backgroundColor: COLORS[i % COLORS.length] }}
+                  />
+                  <span className="text-xs text-zinc-400">{entry.name}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono text-zinc-300 tabular-nums">
+                    {entry.value.toLocaleString()}
+                  </span>
+                  <span className="text-xs font-mono text-zinc-600 w-12 text-right tabular-nums">
+                    {pct}%
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 }

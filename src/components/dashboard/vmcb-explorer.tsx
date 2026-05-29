@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { VmcbConfig } from "@/lib/types";
 
 interface VmcbExplorerProps {
@@ -77,34 +76,57 @@ function BitField({
   label: string;
 }) {
   const [hovered, setHovered] = useState<number | null>(null);
+  const activeBitCount = Array.from(
+    { length: 32 },
+    (_, i) => (value & (1 << i)) !== 0
+  ).filter(Boolean).length;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-mono text-zinc-500">{label}</span>
-        <span className="text-xs font-mono text-zinc-600">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-zinc-400 font-mono">{label}</span>
+          <span className="text-xs text-zinc-600">{activeBitCount} set</span>
+        </div>
+        <span className="text-xs font-mono text-blue-500/50 tabular-nums">
           0x{value.toString(16).padStart(8, "0")}
         </span>
       </div>
-      <div className="flex flex-wrap gap-[2px]">
+      <div className="flex flex-wrap gap-1">
         {Array.from({ length: 32 }, (_, i) => 31 - i).map((bit) => {
           const set = (value & (1 << bit)) !== 0;
           const name = bits[bit];
+          const isHovered = hovered === bit;
+
           return (
             <div
               key={bit}
-              className={`relative h-5 w-5 rounded-sm flex items-center justify-center text-[8px] font-mono cursor-default transition-colors ${
-                set
-                  ? "bg-emerald-500/30 text-emerald-300 border border-emerald-500/40"
-                  : "bg-zinc-800/50 text-zinc-600 border border-zinc-700/30"
-              } ${hovered === bit ? "ring-1 ring-white/30" : ""}`}
+              className={`relative flex items-center justify-center rounded-md font-mono cursor-default transition-all duration-150 select-none w-7 h-7 text-[10px]
+                ${
+                  set
+                    ? isHovered
+                      ? "bg-blue-500/25 border border-blue-500/50 scale-105"
+                      : "bg-blue-500/15 border border-blue-500/30"
+                    : isHovered
+                      ? "bg-white/[0.04] border border-white/[0.08]"
+                      : "bg-white/[0.02] border border-white/[0.04]"
+                }
+              `}
               onMouseEnter={() => setHovered(bit)}
               onMouseLeave={() => setHovered(null)}
             >
-              {set ? "1" : "0"}
-              {hovered === bit && name && (
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-zinc-800 border border-zinc-700 rounded text-[10px] text-zinc-200 whitespace-nowrap z-50">
-                  bit {bit}: {name}
+              <span className={set ? "text-blue-300" : "text-zinc-600"}>
+                {set ? "1" : "0"}
+              </span>
+              {isHovered && name && (
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50">
+                  <div className="glass-card px-2.5 py-1.5 border-blue-500/20 whitespace-nowrap">
+                    <span className="text-[10px] text-zinc-500">bit {bit}</span>
+                    <span className="text-[10px] font-mono text-blue-300 ml-2">
+                      {name}
+                    </span>
+                  </div>
+                  <div className="w-1.5 h-1.5 bg-[#111113] border-b border-r border-white/[0.06] rotate-45 mx-auto -mt-[3px]" />
                 </div>
               )}
             </div>
@@ -117,13 +139,16 @@ function BitField({
 
 export function VmcbExplorer({ vmcb }: VmcbExplorerProps) {
   return (
-    <Card className="border-white/5 bg-zinc-900/50 col-span-2">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-medium text-zinc-400">
+    <div className="glass-card lg:col-span-2 p-5">
+      <div className="flex items-center justify-between mb-5">
+        <h3 className="text-sm text-zinc-400 font-medium">
           VMCB Explorer
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+        </h3>
+        <span className="text-xs text-zinc-600">
+          Intercept Bit Fields
+        </span>
+      </div>
+      <div className="space-y-5">
         <BitField
           value={vmcb.intercept_misc1}
           bits={MISC1_BITS}
@@ -134,31 +159,31 @@ export function VmcbExplorer({ vmcb }: VmcbExplorerProps) {
           bits={MISC2_BITS}
           label="intercept_misc2"
         />
-        <div className="grid grid-cols-3 gap-4 pt-2">
-          <div>
-            <span className="text-[10px] text-zinc-500 block">np_enable</span>
-            <span
-              className={`text-xs font-mono ${
-                vmcb.np_enable ? "text-emerald-400" : "text-zinc-500"
-              }`}
-            >
-              {vmcb.np_enable}
-            </span>
-          </div>
-          <div>
-            <span className="text-[10px] text-zinc-500 block">guest_asid</span>
-            <span className="text-xs font-mono text-zinc-200">
-              {vmcb.guest_asid}
-            </span>
-          </div>
-          <div>
-            <span className="text-[10px] text-zinc-500 block">tlb_control</span>
-            <span className="text-xs font-mono text-zinc-200">
-              {vmcb.tlb_control}
-            </span>
-          </div>
+      </div>
+      <div className="grid grid-cols-3 gap-6 mt-5 pt-4 border-t border-white/[0.04]">
+        <div>
+          <span className="text-xs text-zinc-500 block">np_enable</span>
+          <span
+            className={`text-sm font-mono font-bold mt-1 block ${
+              vmcb.np_enable ? "text-blue-400" : "text-zinc-600"
+            }`}
+          >
+            {vmcb.np_enable}
+          </span>
         </div>
-      </CardContent>
-    </Card>
+        <div>
+          <span className="text-xs text-zinc-500 block">guest_asid</span>
+          <span className="text-sm font-mono font-bold text-zinc-300 mt-1 block">
+            {vmcb.guest_asid}
+          </span>
+        </div>
+        <div>
+          <span className="text-xs text-zinc-500 block">tlb_control</span>
+          <span className="text-sm font-mono font-bold text-zinc-300 mt-1 block">
+            {vmcb.tlb_control}
+          </span>
+        </div>
+      </div>
+    </div>
   );
 }

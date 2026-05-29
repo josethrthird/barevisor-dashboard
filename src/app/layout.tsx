@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Barevisor — Hypervisor Control Panel",
+  title: "Barevisor — Bare-Metal Hypervisor Introspection",
   description:
-    "Real-time monitoring dashboard for an AMD SVM bare-metal hypervisor",
+    "Real-time AMD SVM/NPT monitoring with undetectable stealth layers",
 };
 
 export default function RootLayout({
@@ -26,11 +26,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-zinc-950 text-zinc-100">
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

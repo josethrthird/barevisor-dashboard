@@ -1,7 +1,5 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import type { NptHook } from "@/lib/types";
 
 interface HookManagerProps {
@@ -9,65 +7,72 @@ interface HookManagerProps {
 }
 
 export function HookManager({ hooks }: HookManagerProps) {
+  const activeCount = hooks.filter((h) => h.active).length;
+
   return (
-    <Card className="border-white/5 bg-zinc-900/50 col-span-3">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium text-zinc-400">
-            NPT Hook Manager
-          </CardTitle>
-          <span className="text-xs font-mono text-zinc-600">
-            {hooks.filter((h) => h.active).length}/{hooks.length} active
-          </span>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="text-zinc-500 border-b border-white/5">
-                <th className="pb-2 text-left font-medium">ID</th>
-                <th className="pb-2 text-left font-medium">Guest RIP</th>
-                <th className="pb-2 text-left font-medium">Shadow PA</th>
-                <th className="pb-2 text-right font-medium">Hits</th>
-                <th className="pb-2 text-right font-medium">Status</th>
+    <div className="glass-card p-5">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-sm text-zinc-400 font-medium">
+          NPT Hook Manager
+        </h3>
+        <span className="text-xs text-zinc-500">
+          <span className="text-blue-400 font-mono">{activeCount}</span>
+          <span className="mx-1">/</span>
+          <span className="font-mono">{hooks.length}</span> active
+        </span>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-zinc-500 border-b border-white/[0.04]">
+              <th className="pb-2.5 text-left font-medium text-xs">
+                ID
+              </th>
+              <th className="pb-2.5 text-left font-medium text-xs">
+                Guest RIP
+              </th>
+              <th className="pb-2.5 text-left font-medium text-xs">
+                Shadow PA
+              </th>
+              <th className="pb-2.5 text-right font-medium text-xs">
+                Hits
+              </th>
+              <th className="pb-2.5 text-right font-medium text-xs">
+                Status
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {hooks.map((hook) => (
+              <tr
+                key={hook.id}
+                className="border-b border-white/[0.02] hover:bg-blue-500/[0.02] transition-colors"
+              >
+                <td className="py-3 font-mono text-zinc-500">{hook.id}</td>
+                <td className="py-3 font-mono text-zinc-300">
+                  {hook.guest_rip}
+                </td>
+                <td className="py-3 font-mono text-zinc-300">
+                  {hook.shadow_pa}
+                </td>
+                <td className="py-3 font-mono text-zinc-300 text-right tabular-nums">
+                  {hook.hit_count.toLocaleString()}
+                </td>
+                <td className="py-3 text-right">
+                  {hook.active ? (
+                    <span className="inline-flex items-center gap-1.5 text-xs">
+                      <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                      <span className="text-blue-400">Active</span>
+                    </span>
+                  ) : (
+                    <span className="text-xs text-zinc-600">Inactive</span>
+                  )}
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {hooks.map((hook) => (
-                <tr
-                  key={hook.id}
-                  className="border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors"
-                >
-                  <td className="py-2.5 font-mono text-zinc-400">
-                    #{hook.id}
-                  </td>
-                  <td className="py-2.5 font-mono text-zinc-200">
-                    {hook.guest_rip}
-                  </td>
-                  <td className="py-2.5 font-mono text-zinc-200">
-                    {hook.shadow_pa}
-                  </td>
-                  <td className="py-2.5 font-mono text-zinc-300 text-right">
-                    {hook.hit_count.toLocaleString()}
-                  </td>
-                  <td className="py-2.5 text-right">
-                    <Badge
-                      className={
-                        hook.active
-                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/10"
-                          : "bg-zinc-500/10 text-zinc-500 border-zinc-500/20 hover:bg-zinc-500/10"
-                      }
-                    >
-                      {hook.active ? "Active" : "Inactive"}
-                    </Badge>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </CardContent>
-    </Card>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
